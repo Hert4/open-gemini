@@ -173,7 +173,15 @@ def contribute_conversations(
         return None
 
     url = "https://api.openinterpreter.com/v0/contribute/"
-    oi_version = version("open-interpreter")
+    try:
+        oi_version = version("open-gemini")
+    except PackageNotFoundError:
+        # Fallback to open-interpreter if open-gemini is not found
+        try:
+            oi_version = version("open-interpreter")
+        except PackageNotFoundError:
+            # If neither package is found, use a default version
+            oi_version = "unknown"
 
     payload = {
         "conversation_id": conversation_id,

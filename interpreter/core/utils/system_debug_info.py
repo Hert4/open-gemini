@@ -27,9 +27,13 @@ def get_oi_version():
     except Exception as e:
         oi_version_cmd = str(e)
     try:
-        pkg_ver = version("open-interpreter")
+        pkg_ver = version("open-gemini")
     except PackageNotFoundError:
-        pkg_ver = None
+        # Fallback to open-interpreter if open-gemini is not found
+        try:
+            pkg_ver = version("open-interpreter")
+        except PackageNotFoundError:
+            pkg_ver = None
     oi_version = oi_version_cmd, pkg_ver
     return oi_version
 

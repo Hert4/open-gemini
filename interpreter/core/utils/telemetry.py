@@ -47,7 +47,15 @@ user_id = get_or_create_uuid()
 def send_telemetry(event_name, properties=None):
     if properties is None:
         properties = {}
-    properties["oi_version"] = version("open-interpreter")
+    try:
+        properties["oi_version"] = version("open-gemini")
+    except PackageNotFoundError:
+        # Fallback to open-interpreter if open-gemini is not found
+        try:
+            properties["oi_version"] = version("open-interpreter")
+        except PackageNotFoundError:
+            # If neither package is found, use a default version
+            properties["oi_version"] = "unknown"
     try:
         url = "https://app.posthog.com/capture"
         headers = {"Content-Type": "application/json"}
