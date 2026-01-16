@@ -25,13 +25,27 @@ try:
 except:
     cv2 = None  # Fixes colab error
 
-pyautogui = lazy_import("pyautogui")
+from ..utils.lazy_pyautogui import pyautogui
 
 # Check if there's a display available
 try:
     # Attempt to get the screen size
     pyautogui.size()
 except:
+    # If pyautogui fails (e.g. missing dependency), we handle it here by
+    # catching the error. The wrapper raises ImportError, which is caught here (or SystemExit/Exception depending on implementation)
+    # But wait, except: catches everything.
+    # If pyautogui is the wrapper, pyautogui.size() raises ImportError.
+    # We want to keep pyautogui as the wrapper, but maybe mark it as unavailable?
+    # The wrapper already raises ImportError on access.
+    # The original code sets pyautogui = None.
+    # If we do that, subsequent calls to pyautogui.something will raise AttributeError (NoneType has no attribute...).
+    # Original code seems to handle that?
+    pass # Let's just pass. If it failed, the wrapper will raise ImportError on future accesses too.
+    # But wait, original code sets it to None. Maybe some checks check "if pyautogui:".
+    # My wrapper is truthy.
+    # If I set pyautogui = None, then code like "if pyautogui:" works.
+    # So:
     pyautogui = None
 
 np = lazy_import("numpy")

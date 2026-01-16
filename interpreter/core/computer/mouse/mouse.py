@@ -13,7 +13,7 @@ try:
 except:
     cv2 = None  # Fixes colab error
 np = lazy_import("numpy")
-pyautogui = lazy_import("pyautogui")
+from ..utils.lazy_pyautogui import pyautogui
 plt = lazy_import("matplotlib.pyplot")
 
 

@@ -1,4 +1,8 @@
 import os
+import warnings
+
+# Suppress Pydantic serializer warnings from LiteLLM/OpenAI interactions
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic.main")
 
 os.environ["LITELLM_LOCAL_MODEL_COST_MAP"] = "True"
 import sys

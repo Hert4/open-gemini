@@ -2,10 +2,7 @@ import os
 import platform
 import time
 
-from ...utils.lazy_import import lazy_import
-
-# Lazy import of pyautogui
-pyautogui = lazy_import("pyautogui")
+from ..utils.lazy_pyautogui import pyautogui
 
 
 class Keyboard:

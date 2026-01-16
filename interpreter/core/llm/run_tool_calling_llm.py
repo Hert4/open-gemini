@@ -40,7 +40,7 @@ def process_messages(messages):
 
         if message.get("function_call"):
             last_tool_id += 1
-            tool_id = f"toolu_{last_tool_id}"
+            tool_id = "toolu_{}".format(last_tool_id)
 
             # Convert function_call to tool_calls
             function = message.pop("function_call")
@@ -65,9 +65,10 @@ def process_messages(messages):
         elif message.get("role") == "function":
             # This handles orphaned function responses
             last_tool_id += 1
-            tool_id = f"toolu_{last_tool_id}"
+            tool_id = "toolu_{}".format(last_tool_id)
 
             # Add a tool call before this orphaned tool response
+            # Use valid JSON for arguments to avoid conversion errors
             processed_messages.append(
                 {
                     "role": "assistant",
@@ -77,7 +78,7 @@ def process_messages(messages):
                             "type": "function",
                             "function": {
                                 "name": "execute",
-                                "arguments": "# Automated tool call to fetch more output, triggered by the user.",
+                                "arguments": '{"language": "python", "code": "# Automated tool call to fetch more output, triggered by the user."}',
                             },
                         }
                     ],

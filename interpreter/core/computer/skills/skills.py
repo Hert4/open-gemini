@@ -12,7 +12,7 @@ from ..utils.recipient_utils import format_to_recipient
 
 # Lazy import, imported when needed to speed up start time
 aifs = lazy_import("aifs")
-pyautogui = lazy_import("pyautogui")
+from ..utils.lazy_pyautogui import pyautogui
 pynput = lazy_import("pynput")
 
 element = None
