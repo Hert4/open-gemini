@@ -2,6 +2,10 @@ import argparse
 import os
 import sys
 import time
+import warnings
+
+# Suppress Pydantic serializer warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic.main")
 
 from importlib.metadata import version, PackageNotFoundError
 
@@ -374,7 +378,7 @@ Use """ to write multi-line messages.
         try:
             oi_version = version("open-gemini")
         except PackageNotFoundError:
-            oi_version = "0.0.1" # Fallback if running from source without install
+            oi_version = "0.0.1"  # Fallback if running from source without install
         update_name = "Developer Preview"  # Change this with each major update
         print(f"Open Gemini {oi_version} {update_name}")
         return
@@ -411,16 +415,18 @@ Use """ to write multi-line messages.
     )
 
     ### Set some helpful settings we know are likely to be true
-    
-    if interpreter.llm.model.startswith("gemini/") or interpreter.llm.model.startswith("vertex_ai/"):
-         # Gemini models often have large context windows
-         if interpreter.llm.context_window is None:
-            interpreter.llm.context_window = 1000000 # 1M context window for 1.5
-         if interpreter.llm.max_tokens is None:
+
+    if interpreter.llm.model.startswith("gemini/") or interpreter.llm.model.startswith(
+        "vertex_ai/"
+    ):
+        # Gemini models often have large context windows
+        if interpreter.llm.context_window is None:
+            interpreter.llm.context_window = 1000000  # 1M context window for 1.5
+        if interpreter.llm.max_tokens is None:
             interpreter.llm.max_tokens = 8192
-         if interpreter.llm.supports_functions is None:
+        if interpreter.llm.supports_functions is None:
             interpreter.llm.supports_functions = True
-         if interpreter.llm.supports_vision is None:
+        if interpreter.llm.supports_vision is None:
             interpreter.llm.supports_vision = True
 
     ### Check for update
@@ -505,9 +511,7 @@ def main():
                 feedback = None
                 if len(interpreter.messages) > 3:
                     feedback = (
-                        input("\n\nWas Open Gemini helpful? (y/n): ")
-                        .strip()
-                        .lower()
+                        input("\n\nWas Open Gemini helpful? (y/n): ").strip().lower()
                     )
                     if feedback == "y":
                         feedback = True

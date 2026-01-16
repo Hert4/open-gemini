@@ -12,17 +12,84 @@ PIL = lazy_import("PIL")
 pytesseract = lazy_import("pytesseract")
 
 
+def configure_tesseract():
+    print("DEBUG: configure_tesseract called")
+    if pytesseract is None:
+        print("DEBUG: pytesseract is None")
+        return
+
+    import os
+    import shutil
+    import sys
+
+    # Check if tesseract is already in path
+    if shutil.which("tesseract"):
+        print("DEBUG: tesseract found in PATH")
+        return
+
+    if sys.platform == "win32":
+        possible_paths = [
+            r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+            r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+            os.path.expandvars(r"%LOCALAPPDATA%\Programs\Tesseract-OCR\tesseract.exe"),
+        ]
+
+        for path in possible_paths:
+            print(f"DEBUG: Checking path {path}")
+            if os.path.exists(path):
+                print(f"DEBUG: Found tesseract at {path}")
+                # Try setting it in all possible locations to be safe
+
+                # 1. Try submodule via explicit import (most reliable for submodule internals)
+                try:
+                    from pytesseract import pytesseract as pt_core
+
+                    print("DEBUG: Imported pt_core")
+                    pt_core.tesseract_cmd = path
+                    print(f"DEBUG: Set pt_core.tesseract_cmd = {path}")
+                except ImportError as e:
+                    print(f"DEBUG: ImportError: {e}")
+                    pass
+
+                # 2. Try submodule via lazy object
+                try:
+                    pytesseract.pytesseract.tesseract_cmd = path
+                    print("DEBUG: Set pytesseract.pytesseract.tesseract_cmd")
+                except (AttributeError, ImportError) as e:
+                    print(f"DEBUG: Error lazy sub: {e}")
+                    pass
+
+                # 3. Try top level attribute
+                try:
+                    pytesseract.tesseract_cmd = path
+                    print("DEBUG: Set pytesseract.tesseract_cmd")
+                except (AttributeError, ImportError) as e:
+                    print(f"DEBUG: Error top: {e}")
+                    pass
+
+                return
+        print("DEBUG: Tesseract not found in possible paths")
+
+
 def pytesseract_get_text(img):
     # List the attributes of pytesseract, which will trigger lazy loading of it
     attributes = dir(pytesseract)
     if pytesseract == None:
         raise ImportError("The pytesseract module could not be imported.")
 
+    configure_tesseract()
     result = pytesseract.image_to_string(img)
     return result
 
 
 def pytesseract_get_text_bounding_boxes(img):
+    if pytesseract is None:
+        raise ImportError(
+            "pytesseract is not installed or not found. Please install it to use text detection."
+        )
+
+    configure_tesseract()
+
     # Convert PIL Image to NumPy array
     img_array = np.array(img)
 
@@ -52,6 +119,13 @@ def pytesseract_get_text_bounding_boxes(img):
 
 
 def find_text_in_image(img, text, debug=False):
+    if pytesseract is None:
+        raise ImportError(
+            "pytesseract is not installed or not found. Please install it to use text detection."
+        )
+
+    configure_tesseract()
+
     # Convert PIL Image to NumPy array
     img_array = np.array(img)
 

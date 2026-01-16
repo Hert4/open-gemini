@@ -41,17 +41,32 @@ except:
     # The original code sets pyautogui = None.
     # If we do that, subsequent calls to pyautogui.something will raise AttributeError (NoneType has no attribute...).
     # Original code seems to handle that?
-    pass # Let's just pass. If it failed, the wrapper will raise ImportError on future accesses too.
+    pass  # Let's just pass. If it failed, the wrapper will raise ImportError on future accesses too.
     # But wait, original code sets it to None. Maybe some checks check "if pyautogui:".
     # My wrapper is truthy.
     # If I set pyautogui = None, then code like "if pyautogui:" works.
     # So:
     pyautogui = None
 
-np = lazy_import("numpy")
-plt = lazy_import("matplotlib.pyplot")
-screeninfo = lazy_import("screeninfo")
-pywinctl = lazy_import("pywinctl")
+try:
+    np = lazy_import("numpy")
+except:
+    np = None
+
+try:
+    plt = lazy_import("matplotlib.pyplot")
+except:
+    plt = None
+
+try:
+    screeninfo = lazy_import("screeninfo")
+except:
+    screeninfo = None
+
+try:
+    pywinctl = lazy_import("pywinctl")
+except:
+    pywinctl = None
 
 
 from ..utils.computer_vision import find_text_in_image, pytesseract_get_text
@@ -159,7 +174,13 @@ class Display:
 
         if quadrant == None:
             if active_app_only:
-                active_window = pywinctl.getActiveWindow()
+                active_window = None
+                if pywinctl:
+                    try:
+                        active_window = pywinctl.getActiveWindow()
+                    except:
+                        pass
+
                 if active_window:
                     screenshot = pyautogui.screenshot(
                         region=(
